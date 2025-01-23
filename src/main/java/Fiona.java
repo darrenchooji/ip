@@ -9,8 +9,8 @@ public class Fiona {
         String line = "------------------------------------------";
         System.out.println(line+"\nHello! I'm Fiona.\nWhat can I do for you?\n"+line);
         while (true) {
-            System.out.println(line);
             String input = br.readLine();
+            System.out.println(line);
             if (input.equals("bye")) break;
             System.out.println(input+"\n"+line);
         }
