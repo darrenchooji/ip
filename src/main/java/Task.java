@@ -5,7 +5,7 @@ public abstract class Task {
     private static int numOfTask = 0;
 
     public Task(String name) {
-        numOfTask++;
+        ++numOfTask;
         this.id = numOfTask;
         this.name = name;
         this.isDone = false;
