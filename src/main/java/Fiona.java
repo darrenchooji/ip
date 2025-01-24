@@ -22,27 +22,25 @@ public class Fiona {
                 String taskName = inputs[1];
                 Task task = new Task(taskName);
                 taskList.add(task);
-                System.out.println("added: "+taskName+"\n"+line);
+                System.out.println("added: "+taskName+"\n");
             } else if (command.equals("list")) {
                 System.out.println("Here are the tasks in your list:");
                 for (Task task : taskList) {
                     String mark = task.getIsDone() ? "X" : " ";
                     System.out.println(task.getId()+". ["+mark+"] "+task.getTaskName());
                 }
-                System.out.println(line);
             } else if (command.equals("mark")) {
                 int id = Integer.parseInt(inputs[1])-1;
                 taskList.get(id).setIsDone();
                 System.out.println("Nice! I've marked this task as done:");
                 System.out.println("[X] "+taskList.get(id).getTaskName());
-                System.out.println(line);
             } else {    // unmark
                 int id = Integer.parseInt(inputs[1])-1;
                 taskList.get(id).setNotDone();;
                 System.out.println("OK, I've marked this task as not doneyet :");
                 System.out.println("[ ] "+taskList.get(id).getTaskName());
-                System.out.println(line);
             }
+            System.out.println(line);
         }
         System.out.println(line+"\nBye. Hope to see you again soon!\n"+line);
     }
