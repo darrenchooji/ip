@@ -1,33 +1,23 @@
-public class Task {
+public abstract class Task {
     private int id;
     private String name;
     private boolean isDone;
-    private static int ID = 0;
+    private static int numOfTask = 0;
 
     public Task(String name) {
+        numOfTask++;
+        this.id = numOfTask;
         this.name = name;
         this.isDone = false;
-        ID++;
-        this.id = ID;
     }
 
-    public void setIsDone() {
-        this.isDone = true;
-    }
+    public int getId() { return this.id; }
 
-    public void setNotDone() {
-        this.isDone = false;
-    }
+    public String getName() { return this.name; }
 
-    public boolean getIsDone() {
-        return this.isDone;
-    }
+    public boolean getIsDone() { return this.isDone; }
 
-    public String getTaskName() {
-        return this.name;
-    }
+    public void setDone() { this.isDone = true; }
 
-    public int getId() {
-        return this.id;
-    }
+    public void setUndone() { this.isDone = false; }
 }
