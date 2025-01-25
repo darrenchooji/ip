@@ -61,8 +61,8 @@ public class Fiona {
                     System.out.println("Now you have "+taskList.size()+" task(s) in the list.");
     
                 } else if (action.equals("list")) {
-                    for (Task t : taskList) {
-                        System.out.println(t.getId() + ". "+t);
+                    for (int i=0; i<taskList.size(); ++i) {
+                        System.out.println((i+1) + ". "+taskList.get(i));
                     }
     
                 } else if (action.equals("mark")) {
@@ -83,9 +83,17 @@ public class Fiona {
                     System.out.println("OK, I've marked this task as not done yet :");
                     System.out.println(taskList.get(id));
     
+                } else if (action.equals("delete")) {
+                    if (inputs.length < 2) {
+                        throw new FionaException("You must specify a valid task number to delete.");
+                    }
+                    int id = Integer.parseInt(inputs[1])-1;
+                    Task task = taskList.remove(id);
+                    System.out.println("Noted. I've removed this task:\n"+task+"\nNow you have "+taskList.size()+" tasks in the list.");
                 } else {
                     throw new FionaException("I'm sorry, but I don't know what that means :-(");
                 }
+
             } catch (FionaException fE) {
                 System.out.println(fE.getMessage());
             } catch (NumberFormatException e) {
