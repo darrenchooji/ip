@@ -15,7 +15,6 @@ public class Fiona {
         while (true) {
             String[] inputs = br.readLine().trim().split("\\s+", 2);
             Action action = Action.fromString(inputs[0]);
-        
             if (action == Action.BYE) break;
         
             System.out.println(line);
