@@ -1,3 +1,5 @@
+package Fiona.Command;
+
 public class Command {
     private Action action;
     private String args;

@@ -1,9 +1,15 @@
+package Fiona.Command;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+
+import Fiona.Task.Deadline;
+import Fiona.Task.Event;
+import Fiona.Task.Task;
+import Fiona.Task.Todo;
 
 public class Fiona {
     private Storage storage;
@@ -21,6 +27,7 @@ public class Fiona {
             ui.showLoadingError();
             tasks = new TaskList();
         }
+        ui.showLine();
     }
 
     public void run() {

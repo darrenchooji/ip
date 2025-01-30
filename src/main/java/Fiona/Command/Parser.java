@@ -1,4 +1,5 @@
-// Parser.java
+package Fiona.Command;
+
 public class Parser {
     public static Command parse(String fullCommand) throws FionaException {
         String[] inputs = fullCommand.trim().split("\\s+", 2);
