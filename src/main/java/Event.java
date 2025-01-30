@@ -1,28 +1,29 @@
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 public class Event extends Task {
-    private LocalDate from;
-    private LocalDate to;
-    private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM dd yyyy");
-    private static final DateTimeFormatter STORAGE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE; // yyyy-MM-dd
+    private LocalDateTime from;
+    private LocalDateTime to;
+    private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm");
+    private static final DateTimeFormatter STORAGE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"); 
 
     public Event(String description, String from, String to) throws FionaException {
         super(description);
         try {
-            this.from = LocalDate.parse(from, STORAGE_FORMAT);
-            this.to = LocalDate.parse(to, STORAGE_FORMAT);
+            this.from = LocalDateTime.parse(from, STORAGE_FORMAT);
+            this.to = LocalDateTime.parse(to, STORAGE_FORMAT);
         } catch (DateTimeParseException e) {
-            throw new FionaException("Invalid date format for event. Please use yyyy-MM-dd.");
+            throw new FionaException("Invalid date-time format for event. Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");
         }
     }
 
-    public LocalDate getFrom() {
+    public LocalDateTime getFrom() {
         return this.from;
     }
 
-    public LocalDate getTo() {
+    public LocalDateTime getTo() {
         return this.to;
     }
 

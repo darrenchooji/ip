@@ -51,11 +51,18 @@ public class Storage {
     }
 
     private Task parseTask(String line) {
+        System.out.println("Parsing line: " + line); // Debug statement
         String[] parts = line.split(" \\| ");
+        
+        if (parts.length < 3) {
+            System.out.println("Skipping malformed line (insufficient parts): " + line);
+            return null;
+        }
+        
         String type = parts[0];
         boolean isDone = parts[1].equals("1");
         String description = parts[2];
-    
+        
         try {
             switch (type) {
                 case "T":
@@ -63,25 +70,33 @@ public class Storage {
                     if (isDone) todo.setDone();
                     return todo;
                 case "D":
+                    if (parts.length < 4) {
+                        System.out.println("Skipping malformed Deadline task (missing 'by' field): " + line);
+                        return null;
+                    }
                     String deadline = parts[3];
                     Task deadlineTask = new Deadline(description, deadline);
                     if (isDone) deadlineTask.setDone();
                     return deadlineTask;
                 case "E":
+                    if (parts.length < 5) {
+                        System.out.println("Skipping malformed Event task (missing 'from' or 'to' fields): " + line);
+                        return null;
+                    }
                     String from = parts[3];
                     String to = parts[4];
                     Task event = new Event(description, from, to);
                     if (isDone) event.setDone();
                     return event;
                 default:
+                    System.out.println("Unknown task type: " + type + " in line: " + line);
                     return null;
             }
         } catch (FionaException e) {
-            System.out.println("Error parsing task from storage: " + e.getMessage());
+            System.out.println("Error parsing task: " + e.getMessage() + " in line: " + line);
             return null;
         }
     }
-    
 
     private String serializeTask(Task task) {
         StringBuilder sb = new StringBuilder();
@@ -104,5 +119,6 @@ public class Storage {
     
         return sb.toString();
     }
+    
     
 }

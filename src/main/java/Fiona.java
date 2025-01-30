@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -134,36 +135,37 @@ public class Fiona {
 
                 case FIND:
                     if (inputs.length < 2 || inputs[1].trim().isEmpty()) {
-                        throw new FionaException("You must specify a date in yyyy-MM-dd format to find tasks.");
+                        throw new FionaException("You must specify a date-time in yyyy-MM-dd HHmm format to find tasks.");
                     }
 
-                    String dateStr = inputs[1].trim();
-                    LocalDate targetDate;
+                    String dateTimeStr = inputs[1].trim();
+                    LocalDateTime targetDateTime;
                     try {
-                        targetDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
+                        targetDateTime = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
                     } catch (DateTimeParseException e) {
-                        throw new FionaException("Invalid date format. Please use yyyy-MM-dd.");
+                        throw new FionaException("Invalid date-time format. Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");
                     }
 
                     List<Task> matchingTasks = new ArrayList<>();
+
                     for (Task taskInList : taskList) {
                         if (taskInList instanceof Deadline) {
                             Deadline deadlineTask = (Deadline) taskInList;
-                            if (deadlineTask.getDeadline().equals(targetDate)) {
-                                matchingTasks.add(taskInList);
+                            if (deadlineTask.getDeadline().equals(targetDateTime)) {
+                                matchingTasks.add(deadlineTask);
                             }
                         } else if (taskInList instanceof Event) {
                             Event eventTask = (Event) taskInList;
-                            if (!eventTask.getFrom().isAfter(targetDate) && !eventTask.getTo().isBefore(targetDate)) {
-                                matchingTasks.add(taskInList);
+                            if (!eventTask.getFrom().isAfter(targetDateTime) && !eventTask.getTo().isBefore(targetDateTime)) {
+                                matchingTasks.add(eventTask);
                             }
                         }
                     }
 
                     if (matchingTasks.isEmpty()) {
-                        System.out.println("No tasks found on " + targetDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy")) + ".");
+                        System.out.println("No tasks found at " + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm")) + ".");
                     } else {
-                        System.out.println("Here are the tasks on " + targetDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy")) + ":");
+                        System.out.println("Here are the tasks at " + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm")) + ":");
                         for (int i = 0; i < matchingTasks.size(); ++i) {
                             System.out.println((i + 1) + ". " + matchingTasks.get(i));
                         }
