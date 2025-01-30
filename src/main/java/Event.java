@@ -8,6 +8,14 @@ public class Event extends Task {
         this.to = to;
     }
 
+    public String getFrom() {
+        return this.from;
+    }
+
+    public String getTo() {
+        return this.to;
+    }
+
     @Override
     public String toString() {
         String doneIndicator = super.getIsDone() ? "X" : " ";
