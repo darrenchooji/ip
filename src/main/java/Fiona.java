@@ -1,6 +1,9 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +19,11 @@ public class Fiona {
             taskList = storage.load();
             System.out.println(LINE);
             System.out.println("Hello! I'm Fiona.");
-            System.out.println("Here are your existing tasks:");
+
             if (taskList.isEmpty()) {
-                System.out.println("Your task list is empty!");
+                System.out.println("Your task list is empty.");
             } else {
+                System.out.println("Here are your existing tasks:");
                 for (int i = 0; i < taskList.size(); ++i) {
                     System.out.println((i + 1) + ". " + taskList.get(i));
                 }
@@ -31,7 +35,7 @@ public class Fiona {
             System.out.println(LINE);
         }
         
-        System.out.println(LINE + "\nHello! I'm Fiona.\nWhat can I do for you?\n" + LINE);
+        System.out.println("What can I do for you?\n" + LINE);
 
         while (true) {
             String[] inputs = br.readLine().trim().split("\\s+", 2);
@@ -102,6 +106,7 @@ public class Fiona {
                     }
                     int id = Integer.parseInt(inputs[1]) - 1;
                     taskList.get(id).setDone();
+                    storage.save(taskList);
                     System.out.println("Nice! I've marked this task as done:");
                     System.out.println(taskList.get(id));
                     break;
@@ -112,6 +117,7 @@ public class Fiona {
                     }
                     id = Integer.parseInt(inputs[1]) - 1;
                     taskList.get(id).setUndone();
+                    storage.save(taskList);
                     System.out.println("OK, I've marked this task as not done yet :");
                     System.out.println(taskList.get(id));
                     break;
@@ -124,6 +130,44 @@ public class Fiona {
                     Task task = taskList.remove(id);
                     storage.save(taskList);
                     System.out.println("Noted. I've removed this task:\n" + task + "\nNow you have " + taskList.size() + " tasks in the list.");
+                    break;
+
+                case FIND:
+                    if (inputs.length < 2 || inputs[1].trim().isEmpty()) {
+                        throw new FionaException("You must specify a date in yyyy-MM-dd format to find tasks.");
+                    }
+
+                    String dateStr = inputs[1].trim();
+                    LocalDate targetDate;
+                    try {
+                        targetDate = LocalDate.parse(dateStr, DateTimeFormatter.ISO_LOCAL_DATE);
+                    } catch (DateTimeParseException e) {
+                        throw new FionaException("Invalid date format. Please use yyyy-MM-dd.");
+                    }
+
+                    List<Task> matchingTasks = new ArrayList<>();
+                    for (Task taskInList : taskList) {
+                        if (taskInList instanceof Deadline) {
+                            Deadline deadlineTask = (Deadline) taskInList;
+                            if (deadlineTask.getDeadline().equals(targetDate)) {
+                                matchingTasks.add(taskInList);
+                            }
+                        } else if (taskInList instanceof Event) {
+                            Event eventTask = (Event) taskInList;
+                            if (!eventTask.getFrom().isAfter(targetDate) && !eventTask.getTo().isBefore(targetDate)) {
+                                matchingTasks.add(taskInList);
+                            }
+                        }
+                    }
+
+                    if (matchingTasks.isEmpty()) {
+                        System.out.println("No tasks found on " + targetDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy")) + ".");
+                    } else {
+                        System.out.println("Here are the tasks on " + targetDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy")) + ":");
+                        for (int i = 0; i < matchingTasks.size(); ++i) {
+                            System.out.println((i + 1) + ". " + matchingTasks.get(i));
+                        }
+                    }
                     break;
     
                 case UNKNOWN:
