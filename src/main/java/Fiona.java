@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -9,181 +6,233 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Fiona {
-    private static String LINE = "-------------------------------------------------------------";
-    private static final String FILE_PATH = "./data/fiona.txt";
-    public static void main(String[] args) throws IOException, FionaException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    private Storage storage;
+    private TaskList tasks;
+    private Ui ui;
 
-        Storage storage = new Storage(FILE_PATH);
-        List<Task> taskList = new ArrayList<>();
+    public Fiona(String filePath) {
+        ui = new Ui();
+        storage = new Storage(filePath);
         try {
-            taskList = storage.load();
-            System.out.println(LINE);
-            System.out.println("Hello! I'm Fiona.");
-
-            if (taskList.isEmpty()) {
-                System.out.println("Your task list is empty.");
-            } else {
-                System.out.println("Here are your existing tasks:");
-                for (int i = 0; i < taskList.size(); ++i) {
-                    System.out.println((i + 1) + ". " + taskList.get(i));
-                }
-            }
-            System.out.println(LINE);
+            tasks = new TaskList(storage.load());
+            ui.showWelcome();
+            listTasks();
         } catch (IOException e) {
-            System.out.println("Error loading tasks from file: " + e.getMessage());
-            System.out.println("Starting with an empty task list.");
-            System.out.println(LINE);
+            ui.showLoadingError();
+            tasks = new TaskList();
         }
-        
-        System.out.println("What can I do for you?\n" + LINE);
+    }
 
+    public void run() {
         while (true) {
-            String[] inputs = br.readLine().trim().split("\\s+", 2);
-            Action action = Action.fromString(inputs[0]);
-            if (action == Action.BYE) break;
-        
-            System.out.println(LINE);
             try {
-                switch (action) {
+                String fullCommand = ui.readCommand();
+                Command command = Parser.parse(fullCommand);
+                Action action = command.getAction();
+
+                if (action == Action.BYE) {
+                    ui.showBye();
+                    break;
+                }
+
+                ui.showLine();
+                handleCommand(command);
+                ui.showLine();
+            } catch (IOException e) {
+                ui.showMessage("Error reading input: " + e.getMessage());
+            } catch (FionaException e) {
+                ui.showMessage(e.getMessage());
+                ui.showLine();
+            }
+        }
+    }
+
+    private void handleCommand(Command command) throws FionaException, IOException {
+        Action action = command.getAction();
+        String args = command.getArgs();
+
+        try {
+            switch (action) {
                 case TODO:
-                    if (inputs.length < 2 || inputs[1].trim().isEmpty()) {
-                        throw new FionaException("The description of a todo cannot be empty.");
-                    }
-                    String name = inputs[1].trim();
-                    Task t = new Todo(name);
-                    taskList.add(t);
-                    storage.save(taskList);
-                    System.out.println("Got it. I've added this task:");
-                    System.out.println(t);
-                    System.out.println("Now you have " + taskList.size() + " task(s) in the list.");
+                    addTodo(args);
                     break;
-        
+
                 case DEADLINE:
-                    if (inputs.length < 2 || inputs[1].trim().isEmpty() || !inputs[1].contains("/by")) {
-                        throw new FionaException("The description of a deadline must include a '/by' clause.");
-                    }
-                    String[] parts = inputs[1].split("/by", 2);
-                    name = parts[0].trim();
-                    String deadline = parts[1].trim();
-                    t = new Deadline(name, deadline);
-                    taskList.add(t);
-                    storage.save(taskList);
-                    System.out.println("Got it. I've added this task:");
-                    System.out.println(t);
-                    System.out.println("Now you have " + taskList.size() + " task(s) in the list.");
+                    addDeadline(args);
                     break;
-        
+
                 case EVENT:
-                    if (inputs.length < 2 || inputs[1].trim().isEmpty() || !inputs[1].contains("/from") || !inputs[1].contains("/to")) {
-                        throw new FionaException("The description of an event must include '/from' and '/to' clauses.");
-                    }
-                    String[] fromSplit = inputs[1].split("/from", 2);
-                    name = fromSplit[0].trim();
-                    String[] toSplit = fromSplit[1].split("/to", 2);
-                    String from = toSplit[0].trim();
-                    String to = toSplit[1].trim();
-                    t = new Event(name, from, to);
-                    taskList.add(t);
-                    storage.save(taskList);
-                    System.out.println("Got it. I've added this task:");
-                    System.out.println(t);
-                    System.out.println("Now you have " + taskList.size() + " task(s) in the list.");
+                    addEvent(args);
                     break;
-        
+
                 case LIST:
-                    if (taskList.isEmpty()) {
-                        System.out.println("Your task list is empty!");
-                    } else {
-                        for (int i = 0; i < taskList.size(); ++i) {
-                            System.out.println((i + 1) + ". " + taskList.get(i));
-                        }
-                    }
+                    listTasks();
                     break;
-        
+
                 case MARK:
-                    if (inputs.length < 2) {
-                        throw new FionaException("You must specify a valid task number to mark as done.");
-                    }
-                    int id = Integer.parseInt(inputs[1]) - 1;
-                    taskList.get(id).setDone();
-                    storage.save(taskList);
-                    System.out.println("Nice! I've marked this task as done:");
-                    System.out.println(taskList.get(id));
+                    markTask(args);
                     break;
-    
+
                 case UNMARK:
-                    if (inputs.length < 2) {
-                        throw new FionaException("You must specify a valid task number to mark as not done yet.");
-                    }
-                    id = Integer.parseInt(inputs[1]) - 1;
-                    taskList.get(id).setUndone();
-                    storage.save(taskList);
-                    System.out.println("OK, I've marked this task as not done yet :");
-                    System.out.println(taskList.get(id));
+                    unmarkTask(args);
                     break;
-    
+
                 case DELETE:
-                    if (inputs.length < 2) {
-                        throw new FionaException("You must specify a valid task number to delete.");
-                    }
-                    id = Integer.parseInt(inputs[1]) - 1;
-                    Task task = taskList.remove(id);
-                    storage.save(taskList);
-                    System.out.println("Noted. I've removed this task:\n" + task + "\nNow you have " + taskList.size() + " tasks in the list.");
+                    deleteTask(args);
                     break;
 
                 case FIND:
-                    if (inputs.length < 2 || inputs[1].trim().isEmpty()) {
-                        throw new FionaException("You must specify a date-time in yyyy-MM-dd HHmm format to find tasks.");
-                    }
-
-                    String dateTimeStr = inputs[1].trim();
-                    LocalDateTime targetDateTime;
-                    try {
-                        targetDateTime = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
-                    } catch (DateTimeParseException e) {
-                        throw new FionaException("Invalid date-time format. Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");
-                    }
-
-                    List<Task> matchingTasks = new ArrayList<>();
-
-                    for (Task taskInList : taskList) {
-                        if (taskInList instanceof Deadline) {
-                            Deadline deadlineTask = (Deadline) taskInList;
-                            if (deadlineTask.getDeadline().equals(targetDateTime)) {
-                                matchingTasks.add(deadlineTask);
-                            }
-                        } else if (taskInList instanceof Event) {
-                            Event eventTask = (Event) taskInList;
-                            if (!eventTask.getFrom().isAfter(targetDateTime) && !eventTask.getTo().isBefore(targetDateTime)) {
-                                matchingTasks.add(eventTask);
-                            }
-                        }
-                    }
-
-                    if (matchingTasks.isEmpty()) {
-                        System.out.println("No tasks found at " + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm")) + ".");
-                    } else {
-                        System.out.println("Here are the tasks at " + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm")) + ":");
-                        for (int i = 0; i < matchingTasks.size(); ++i) {
-                            System.out.println((i + 1) + ". " + matchingTasks.get(i));
-                        }
-                    }
+                    findTasks(args);
                     break;
-    
+
                 case UNKNOWN:
+                default:
                     throw new FionaException("I'm sorry, but I don't know what that means :-(");
-                }
-            } catch (FionaException fE) {
-                System.out.println(fE.getMessage());
-            } catch (NumberFormatException e) {
-                System.out.println("The task number you specified must be a valid integer!");
-            } catch (IndexOutOfBoundsException e) {
-                System.out.println("The task number you specified does not exist!");
             }
-            System.out.println(LINE);
+        } catch (NumberFormatException e) {
+            throw new FionaException("The task number you specified must be a valid integer!");
         }
-        System.out.println(LINE + "\nBye. Hope to see you again soon!\n" + LINE);
+    }
+
+    private void addTodo(String args) throws FionaException, IOException {
+        if (args.isEmpty()) {
+            throw new FionaException("The description of a todo cannot be empty.");
+        }
+        Task todo = new Todo(args);
+        tasks.add(todo);
+        storage.save(tasks.getTasks());
+        ui.showMessage("Got it. I've added this task:");
+        ui.showMessage(todo.toString());
+        ui.showMessage("Now you have " + tasks.size() + " task(s) in the list.");
+    }
+
+    private void addDeadline(String args) throws FionaException, IOException {
+        if (args.isEmpty() || !args.contains("/by")) {
+            throw new FionaException("The description of a deadline must include a '/by' clause.");
+        }
+        String[] parts = args.split("/by", 2);
+        if (parts.length < 2 || parts[0].trim().isEmpty() || parts[1].trim().isEmpty()) {
+            throw new FionaException("Invalid format for deadline. Use: deadline <description> /by <deadline>");
+        }
+        String description = parts[0].trim();
+        String deadline = parts[1].trim();
+        Task deadlineTask = new Deadline(description, deadline);
+        tasks.add(deadlineTask);
+        storage.save(tasks.getTasks());
+        ui.showMessage("Got it. I've added this task:");
+        ui.showMessage(deadlineTask.toString());
+        ui.showMessage("Now you have " + tasks.size() + " task(s) in the list.");
+    }
+
+    private void addEvent(String args) throws FionaException, IOException {
+        if (args.isEmpty() || !args.contains("/from") || !args.contains("/to")) {
+            throw new FionaException("The description of an event must include '/from' and '/to' clauses.");
+        }
+        String[] fromSplit = args.split("/from", 2);
+        if (fromSplit.length < 2 || fromSplit[0].trim().isEmpty() || fromSplit[1].trim().isEmpty()) {
+            throw new FionaException("Invalid format for event. Use: event <description> /from <start> /to <end>");
+        }
+        String description = fromSplit[0].trim();
+        String[] toSplit = fromSplit[1].split("/to", 2);
+        if (toSplit.length < 2 || toSplit[0].trim().isEmpty() || toSplit[1].trim().isEmpty()) {
+            throw new FionaException("Invalid format for event. Use: event <description> /from <start> /to <end>");
+        }
+        String from = toSplit[0].trim();
+        String to = toSplit[1].trim();
+        Task event = new Event(description, from, to);
+        tasks.add(event);
+        storage.save(tasks.getTasks());
+        ui.showMessage("Got it. I've added this task:");
+        ui.showMessage(event.toString());
+        ui.showMessage("Now you have " + tasks.size() + " task(s) in the list.");
+    }
+
+    private void listTasks() {
+        if (tasks.size() == 0) {
+            ui.showMessage("Your task list is empty!");
+        } else {
+            ui.showMessage("Here are your existing tasks:");
+            List<Task> taskList = tasks.getTasks();
+            for (int i = 0; i < taskList.size(); ++i) {
+                ui.showMessage((i + 1) + ". " + taskList.get(i));
+            }
+        }
+    }
+
+    private void markTask(String args) throws FionaException, IOException {
+        if (args.isEmpty()) {
+            throw new FionaException("You must specify a valid task number to mark as done.");
+        }
+        int id = Integer.parseInt(args) - 1;
+        Task task = tasks.mark(id);
+        storage.save(tasks.getTasks());
+        ui.showMessage("Nice! I've marked this task as done:");
+        ui.showMessage(task.toString());
+    }
+
+    private void unmarkTask(String args) throws FionaException, IOException {
+        if (args.isEmpty()) {
+            throw new FionaException("You must specify a valid task number to mark as not done yet.");
+        }
+        int id = Integer.parseInt(args) - 1;
+        Task task = tasks.unmark(id);
+        storage.save(tasks.getTasks());
+        ui.showMessage("OK, I've marked this task as not done yet:");
+        ui.showMessage(task.toString());
+    }
+
+    private void deleteTask(String args) throws FionaException, IOException {
+        if (args.isEmpty()) {
+            throw new FionaException("You must specify a valid task number to delete.");
+        }
+        int id = Integer.parseInt(args) - 1;
+        Task task = tasks.getTasks().remove(id);
+        storage.save(tasks.getTasks());
+        ui.showMessage("Noted. I've removed this task:");
+        ui.showMessage(task.toString());
+        ui.showMessage("Now you have " + tasks.size() + " task(s) in the list.");
+    }
+
+    private void findTasks(String args) throws FionaException {
+        if (args.isEmpty()) {
+            throw new FionaException("You must specify a date-time in yyyy-MM-dd HHmm format to find tasks.");
+        }
+
+        String dateTimeStr = args;
+        LocalDateTime targetDateTime;
+        try {
+            targetDateTime = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+        } catch (DateTimeParseException e) {
+            throw new FionaException("Invalid date-time format. Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");
+        }
+
+        List<Task> matchingTasks = new ArrayList<>();
+
+        for (Task task : tasks.getTasks()) {
+            if (task instanceof Deadline) {
+                Deadline deadlineTask = (Deadline) task;
+                if (deadlineTask.getDeadline().equals(targetDateTime)) {
+                    matchingTasks.add(deadlineTask);
+                }
+            } else if (task instanceof Event) {
+                Event eventTask = (Event) task;
+                if (!eventTask.getFrom().isAfter(targetDateTime) && !eventTask.getTo().isBefore(targetDateTime)) {
+                    matchingTasks.add(eventTask);
+                }
+            }
+        }
+
+        if (matchingTasks.isEmpty()) {
+            ui.showMessage("No tasks found at " + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm")) + ".");
+        } else {
+            ui.showMessage("Here are the tasks at " + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm")) + ":");
+            for (int i = 0; i < matchingTasks.size(); ++i) {
+                ui.showMessage((i + 1) + ". " + matchingTasks.get(i));
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        new Fiona("./data/fiona.txt").run();
     }
 }
