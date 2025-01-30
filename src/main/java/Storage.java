@@ -51,34 +51,51 @@ public class Storage {
     }
 
     private Task parseTask(String line) {
+        System.out.println("Parsing line: " + line); // Debug statement
         String[] parts = line.split(" \\| ");
+        
+        if (parts.length < 3) {
+            System.out.println("Skipping malformed line (insufficient parts): " + line);
+            return null;
+        }
+        
         String type = parts[0];
         boolean isDone = parts[1].equals("1");
         String description = parts[2];
-        Task task;
-
-        switch (type) {
-        case "T":
-            task = new Todo(description);
-            if (isDone) task.setDone();
-            return task;
-
-        case "D":
-            String deadline = parts[3];
-            task = new Deadline(description, deadline);
-            if (isDone) task.setDone();
-            return task;
-
-        case "E":
-            String from = parts[3];
-            String to = parts[4];
-            task = new Event(description, from, to);
-            if (isDone) task.setDone();
-            return task;
-
-        default:
+        
+        try {
+            switch (type) {
+                case "T":
+                    Task todo = new Todo(description);
+                    if (isDone) todo.setDone();
+                    return todo;
+                case "D":
+                    if (parts.length < 4) {
+                        System.out.println("Skipping malformed Deadline task (missing 'by' field): " + line);
+                        return null;
+                    }
+                    String deadline = parts[3];
+                    Task deadlineTask = new Deadline(description, deadline);
+                    if (isDone) deadlineTask.setDone();
+                    return deadlineTask;
+                case "E":
+                    if (parts.length < 5) {
+                        System.out.println("Skipping malformed Event task (missing 'from' or 'to' fields): " + line);
+                        return null;
+                    }
+                    String from = parts[3];
+                    String to = parts[4];
+                    Task event = new Event(description, from, to);
+                    if (isDone) event.setDone();
+                    return event;
+                default:
+                    System.out.println("Unknown task type: " + type + " in line: " + line);
+                    return null;
+            }
+        } catch (FionaException e) {
+            System.out.println("Error parsing task: " + e.getMessage() + " in line: " + line);
             return null;
-        }   
+        }
     }
 
     private String serializeTask(Task task) {
@@ -92,14 +109,16 @@ public class Storage {
         }
         sb.append(task.getIsDone() ? "1 | " : "0 | ");
         sb.append(task.getName());
-
+    
         if (task instanceof Deadline) {
-            sb.append(" | ").append(((Deadline) task).getDeadline());
+            sb.append(" | ").append(((Deadline) task).getByForStorage());
         } else if (task instanceof Event) {
-            sb.append(" | ").append(((Event) task).getFrom());
-            sb.append(" | ").append(((Event) task).getTo());
+            sb.append(" | ").append(((Event) task).getFromForStorage());
+            sb.append(" | ").append(((Event) task).getToForStorage());
         }
-
+    
         return sb.toString();
     }
+    
+    
 }
