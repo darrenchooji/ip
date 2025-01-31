@@ -239,6 +239,21 @@ public class Fiona {
         }
     }
 
+    public Fiona(Storage storage, TaskList tasks, Ui ui) {
+        this.storage = storage;
+        this.tasks = tasks;
+        this.ui = ui;
+    }
+
+    public void processCommand(String fullCommand) throws FionaException, IOException {
+        Command command = Parser.parse(fullCommand);
+        handleCommand(command);
+    }
+
+    public TaskList getTaskList() {
+        return tasks;
+    }
+
     public static void main(String[] args) {
         new Fiona("./data/fiona.txt").run();
     }
