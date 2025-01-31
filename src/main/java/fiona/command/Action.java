@@ -1,4 +1,4 @@
-package Fiona.Command;
+package fiona.command;
 public enum Action {
     TODO, DEADLINE, EVENT, LIST, MARK, UNMARK, DELETE, BYE, FIND, UNKNOWN;
 

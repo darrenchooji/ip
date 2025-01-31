@@ -1,4 +1,4 @@
-package Fiona.Task;
+package fiona.task;
 public class Todo extends Task {
     public Todo(String name) {
         super(name);
@@ -7,6 +7,6 @@ public class Todo extends Task {
     @Override
     public String toString() {
         String doneIndicator = super.getIsDone() ? "X" : " ";
-        return "[T][" + doneIndicator+"] "+super.getName();
+        return "[T][" + doneIndicator + "] " + super.getName();
     }
 }

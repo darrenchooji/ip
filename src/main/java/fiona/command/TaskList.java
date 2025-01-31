@@ -1,9 +1,9 @@
-package Fiona.Command;
+package fiona.command;
+
 import java.util.List;
-
-import Fiona.Task.Task;
-
 import java.util.ArrayList;
+
+import fiona.task.Task;
 
 public class TaskList {
     private List<Task> tasks;

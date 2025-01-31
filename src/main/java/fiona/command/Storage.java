@@ -1,4 +1,4 @@
-package Fiona.Command;
+package fiona.command;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import Fiona.Task.Deadline;
-import Fiona.Task.Event;
-import Fiona.Task.Task;
-import Fiona.Task.Todo;
+import fiona.task.Deadline;
+import fiona.task.Event;
+import fiona.task.Task;
+import fiona.task.Todo;
 
 public class Storage {
     private final String filePath;
