@@ -2,13 +2,15 @@ package fiona.task;
 
 /**
  * The {@code Task} class represents a general task with an ID, name, and completion status.
- * It serves as an abstract base class for specific task types such as {@code Todo}, {@code Deadline}, and {@code Event}.
+ * It serves as an abstract base class for specific task types such as {@code Todo},
+ * {@code Deadline}, and {@code Event}.
  */
 public abstract class Task {
+    private static int numOfTask = 0;
+
     private int id;
     private String name;
     private boolean isDone;
-    private static int numOfTask = 0;
 
     /**
      * Constructs a new {@code Task} with the specified name.

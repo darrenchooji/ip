@@ -102,7 +102,9 @@ public class Storage {
             switch (type) {
             case "T":
                 Task todo = new Todo(description);
-                if (isDone) todo.setDone();
+                if (isDone) {
+                    todo.setDone();
+                }
                 return todo;
             case "D":
                 if (parts.length < 4) {
@@ -111,7 +113,9 @@ public class Storage {
                 }
                 String deadline = parts[3];
                 Task deadlineTask = new Deadline(description, deadline);
-                if (isDone) deadlineTask.setDone();
+                if (isDone) {
+                    deadlineTask.setDone();
+                }
                 return deadlineTask;
             case "E":
                 if (parts.length < 5) {
@@ -121,7 +125,9 @@ public class Storage {
                 String from = parts[3];
                 String to = parts[4];
                 Task event = new Event(description, from, to);
-                if (isDone) event.setDone();
+                if (isDone) {
+                    event.setDone();
+                }
                 return event;
             default:
                 System.out.println("Unknown task type: " + type + " in line: " + line);

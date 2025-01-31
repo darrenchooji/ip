@@ -11,13 +11,13 @@ import fiona.command.FionaException;
  * It extends the {@code Task} class and includes a deadline.
  */
 public class Deadline extends Task {
-    private LocalDateTime deadline;
-
     /** Formatter for displaying dates in a user-friendly format. */
     private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm");
 
     /** Formatter for parsing and storing dates in a standardized format. */
     private static final DateTimeFormatter STORAGE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
+    private LocalDateTime deadline;
 
     /**
      * Constructs a {@code Deadline} task with the specified description and due date.
@@ -31,7 +31,8 @@ public class Deadline extends Task {
         try {
             this.deadline = LocalDateTime.parse(deadline, STORAGE_FORMAT);
         } catch (DateTimeParseException e) {
-            throw new FionaException("Invalid date-time format for deadline. Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");
+            throw new FionaException("Invalid date-time format for deadline. "
+                    + "Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");
         }
     }
 

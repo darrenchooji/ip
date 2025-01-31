@@ -1,10 +1,9 @@
 package fiona.command;
-import java.io.IOException;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +39,20 @@ public class Fiona {
             tasks = new TaskList();
         }
         ui.showLine();
+    }
+
+    /**
+     * Constructs a {@code Fiona} chatbot with the given {@code Storage}, {@code TaskList}, and {@code Ui} components.
+     * This constructor is used for testing.
+     *
+     * @param storage The storage system for saving and loading tasks.
+     * @param tasks   The task list containing the user's tasks.
+     * @param ui      The user interface for interaction.
+     */
+    public Fiona(Storage storage, TaskList tasks, Ui ui) {
+        this.storage = storage;
+        this.tasks = tasks;
+        this.ui = ui;
     }
 
     /**
@@ -82,41 +95,41 @@ public class Fiona {
 
         try {
             switch (action) {
-                case TODO:
-                    addTodo(args);
-                    break;
+            case TODO:
+                addTodo(args);
+                break;
 
-                case DEADLINE:
-                    addDeadline(args);
-                    break;
+            case DEADLINE:
+                addDeadline(args);
+                break;
 
-                case EVENT:
-                    addEvent(args);
-                    break;
+            case EVENT:
+                addEvent(args);
+                break;
 
-                case LIST:
-                    listTasks();
-                    break;
+            case LIST:
+                listTasks();
+                break;
 
-                case MARK:
-                    markTask(args);
-                    break;
+            case MARK:
+                markTask(args);
+                break;
 
-                case UNMARK:
-                    unmarkTask(args);
-                    break;
+            case UNMARK:
+                unmarkTask(args);
+                break;
 
-                case DELETE:
-                    deleteTask(args);
-                    break;
+            case DELETE:
+                deleteTask(args);
+                break;
 
-                case FIND:
-                    findTasks(args);
-                    break;
+            case FIND:
+                findTasks(args);
+                break;
 
-                case UNKNOWN:
-                default:
-                    throw new FionaException("I'm sorry, but I don't know what that means :-(");
+            case UNKNOWN:
+            default:
+                throw new FionaException("I'm sorry, but I don't know what that means :-(");
             }
         } catch (NumberFormatException e) {
             throw new FionaException("The task number you specified must be a valid integer!");
@@ -267,7 +280,6 @@ public class Fiona {
         ui.showMessage("Now you have " + tasks.size() + " task(s) in the list.");
     }
 
-
     /**
      * Finds tasks based on a specific date and time.
      *
@@ -304,27 +316,15 @@ public class Fiona {
         }
 
         if (matchingTasks.isEmpty()) {
-            ui.showMessage("No tasks found at " + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm")) + ".");
+            ui.showMessage("No tasks found at " + targetDateTime.format(DateTimeFormatter
+                    .ofPattern("MMM dd yyyy HH:mm")) + ".");
         } else {
-            ui.showMessage("Here are the tasks at " + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm")) + ":");
+            ui.showMessage("Here are the tasks at " + targetDateTime.format(DateTimeFormatter
+                    .ofPattern("MMM dd yyyy HH:mm")) + ":");
             for (int i = 0; i < matchingTasks.size(); ++i) {
                 ui.showMessage((i + 1) + ". " + matchingTasks.get(i));
             }
         }
-    }
-
-    /**
-     * Constructs a {@code Fiona} chatbot with the given {@code Storage}, {@code TaskList}, and {@code Ui} components.
-     * This constructor is used for testing.
-     *
-     * @param storage The storage system for saving and loading tasks.
-     * @param tasks   The task list containing the user's tasks.
-     * @param ui      The user interface for interaction.
-     */
-    public Fiona(Storage storage, TaskList tasks, Ui ui) {
-        this.storage = storage;
-        this.tasks = tasks;
-        this.ui = ui;
     }
 
     /**

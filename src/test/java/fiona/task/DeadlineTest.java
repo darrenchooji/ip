@@ -1,8 +1,9 @@
 package fiona.task;
 
-import fiona.command.FionaException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import fiona.command.FionaException;
 
 public class DeadlineTest {
     @Test
