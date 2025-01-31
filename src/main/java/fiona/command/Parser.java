@@ -17,10 +17,14 @@ public class Parser {
         String[] inputs = fullCommand.trim().split("\\s+", 2);
         Action action = Action.fromString(inputs[0]);
 
-        // Extract arguments if they exist
+        // Extract arguments if exist
         String args = "";
         if (inputs.length > 1) {
             args = inputs[1].trim();
+        }
+
+        if (action == Action.FIND && !args.matches("\\d{4}-\\d{2}-\\d{2} \\d{4}")) {
+            action = Action.FIND_KEYWORD;  // Set action to FIND_KEYWORD if no dates are provided
         }
 
         return new Command(action, args);
