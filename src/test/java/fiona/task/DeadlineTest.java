@@ -12,7 +12,7 @@ public class DeadlineTest {
             Deadline deadline = new Deadline("Finish CS2103T iP", "2025-01-31 1600");
             Assertions.assertEquals("[D][ ] Finish CS2103T iP (by: Jan 31 2025 16:00)",
                     deadline.toString(),
-                    "Expected a correct format for toString()"
+                    "Expected a correct format for toString() method"
             );
         });
     }
