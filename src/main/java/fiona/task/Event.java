@@ -11,14 +11,14 @@ import fiona.command.FionaException;
  * It extends the {@code Task} class and includes a start time ("from") and an end time ("to").
  */
 public class Event extends Task {
-    private LocalDateTime from;
-    private LocalDateTime to;
-
     /** Formatter for displaying dates in a user-friendly format. */
     private static final DateTimeFormatter DISPLAY_FORMAT = DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm");
 
     /** Formatter for parsing and storing dates in a standardized format. */
     private static final DateTimeFormatter STORAGE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
+    private LocalDateTime from;
+    private LocalDateTime to;
 
     /**
      * Constructs an {@code Event} task with the specified description, start time, and end time.
@@ -34,7 +34,8 @@ public class Event extends Task {
             this.from = LocalDateTime.parse(from, STORAGE_FORMAT);
             this.to = LocalDateTime.parse(to, STORAGE_FORMAT);
         } catch (DateTimeParseException e) {
-            throw new FionaException("Invalid date-time format for event. Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");
+            throw new FionaException("Invalid date-time format for event. "
+                    + "Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");
         }
     }
 
