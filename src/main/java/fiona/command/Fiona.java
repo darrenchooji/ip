@@ -127,6 +127,10 @@ public class Fiona {
                 findTasks(args);
                 break;
 
+            case FIND_KEYWORD:
+                findTasksByKeyword(args);
+                break;
+
             case UNKNOWN:
             default:
                 throw new FionaException("I'm sorry, but I don't know what that means :-(");
@@ -321,6 +325,35 @@ public class Fiona {
         } else {
             ui.showMessage("Here are the tasks at " + targetDateTime.format(DateTimeFormatter
                     .ofPattern("MMM dd yyyy HH:mm")) + ":");
+            for (int i = 0; i < matchingTasks.size(); ++i) {
+                ui.showMessage((i + 1) + ". " + matchingTasks.get(i));
+            }
+        }
+    }
+
+    /**
+     * Finds tasks containing the given keyword in their description.
+     *
+     * @param keyword The keyword to search for.
+     * @throws FionaException If the keyword is empty.
+     */
+    private void findTasksByKeyword(String keyword) throws FionaException {
+        if (keyword.isEmpty()) {
+            throw new FionaException("You must specify a keyword to search for.");
+        }
+
+        List<Task> matchingTasks = new ArrayList<>();
+
+        for (Task task : tasks.getTasks()) {
+            if (task.getName().toLowerCase().contains(keyword.toLowerCase())) {
+                matchingTasks.add(task);
+            }
+        }
+
+        if (matchingTasks.isEmpty()) {
+            ui.showMessage("No tasks found containing the keyword: " + keyword);
+        } else {
+            ui.showMessage("Here are the tasks containing \"" + keyword + "\":");
             for (int i = 0; i < matchingTasks.size(); ++i) {
                 ui.showMessage((i + 1) + ". " + matchingTasks.get(i));
             }

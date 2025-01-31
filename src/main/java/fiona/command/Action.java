@@ -29,8 +29,11 @@ public enum Action {
     /** Represents the action to exit the program. */
     BYE,
 
-    /** Represents the action to find tasks based on a specific criterion. */
+    /** Represents the action to find tasks based on a date. */
     FIND,
+
+    /** Represents the action to find tasks based on keywords. */
+    FIND_KEYWORD,
 
     /** Represents an unknown or invalid action. */
     UNKNOWN;
