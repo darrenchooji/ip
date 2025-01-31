@@ -32,7 +32,7 @@ public enum Action {
     /** Represents the action to find tasks based on a date. */
     FIND,
 
-    /** Represents the action to find tasks based on keywords. */
+    /** Represents the action to find tasks based on keyword(s). */
     FIND_KEYWORD,
 
     /** Represents an unknown or invalid action. */
