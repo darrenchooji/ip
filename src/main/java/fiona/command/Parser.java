@@ -24,7 +24,7 @@ public class Parser {
         }
 
         if (action == Action.FIND && !args.matches("\\d{4}-\\d{2}-\\d{2} \\d{4}")) {
-            action = Action.FIND_KEYWORD;  // Set action to FIND_KEYWORD if no dates are provided
+            action = Action.FIND_KEYWORD;
         }
 
         return new Command(action, args);
