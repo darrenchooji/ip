@@ -56,6 +56,25 @@ public class Fiona {
     }
 
     /**
+     * Constructs a {@code Fiona} chatbot with the {@code Storage}, {@code TaskList}, and {@code Ui} components.
+     */
+    public Fiona() {
+        ui = new Ui();
+        // You might want to specify a default file path or handle this differently
+        storage = new Storage("./data/fiona.txt");
+        try {
+            tasks = new TaskList(storage.load());
+            ui.showWelcome();
+            listTasks();
+        } catch (IOException e) {
+            ui.showLoadingError();
+            tasks = new TaskList();
+        }
+        ui.showLine();
+    }
+
+
+    /**
      * Runs the chatbot. It continuously processes user commands until the "bye" command is given.
      */
     public void run() {
@@ -388,5 +407,18 @@ public class Fiona {
      */
     public static void main(String[] args) {
         new Fiona("./data/fiona.txt").run();
+    }
+
+    public String getResponse(String input) {
+        try {
+            processCommand(input);
+        } catch (FionaException | IOException e) {
+            ui.showMessage(e.getMessage());
+        }
+        return ui.getMessage();
+    }
+
+    public String getWelcomeMessage() {
+        return ui.getMessage();
     }
 }

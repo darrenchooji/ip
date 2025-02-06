@@ -5,28 +5,28 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * The {@code Ui} class handles user interaction in the Fiona chatbot.
- * It is responsible for displaying messages, reading user input, and formatting responses.
+ *
  */
 public class Ui {
-    /** A horizontal line used for visual separation in messages. */
     private static final String LINE = "-------------------------------------------------------------";
 
-    /** Buffered reader for reading user input from the console. */
     private BufferedReader reader;
+    private StringBuilder messageLog;
 
     /**
      * Constructs a {@code Ui} object and initializes the input reader.
      */
     public Ui() {
         reader = new BufferedReader(new InputStreamReader(System.in));
+        messageLog = new StringBuilder();
     }
 
     /**
      * Displays a horizontal line for visual separation.
      */
     public void showLine() {
-        System.out.println(LINE);
+        // Instead of printing directly, append to the log.
+        messageLog.append(LINE).append("\n");
     }
 
     /**
@@ -34,8 +34,8 @@ public class Ui {
      */
     public void showWelcome() {
         showLine();
-        System.out.println("Hello! I'm Fiona.");
-        System.out.println("What can I do for you?");
+        showMessage("Hello! I'm Fiona.");
+        showMessage("What can I do for you?");
         showLine();
     }
 
@@ -44,7 +44,7 @@ public class Ui {
      */
     public void showLoadingError() {
         showLine();
-        System.out.println("Error loading tasks from file. Starting with an empty task list.");
+        showMessage("Error loading tasks from file. Starting with an empty task list.");
         showLine();
     }
 
@@ -59,12 +59,24 @@ public class Ui {
     }
 
     /**
-     * Displays a message to the user.
+     * Displays a message to the user by appending it to the message log.
      *
      * @param message The message to display.
      */
     public void showMessage(String message) {
-        System.out.println(message);
+        messageLog.append(message).append("\n");
+    }
+
+    /**
+     * Returns the accumulated messages as a single string and clears the log.
+     *
+     * @return The output message string.
+     */
+    public String getMessage() {
+        String output = messageLog.toString();
+        // Clear the log after retrieving the messages.
+        messageLog.setLength(0);
+        return output;
     }
 
     /**
@@ -72,7 +84,7 @@ public class Ui {
      */
     public void showBye() {
         showLine();
-        System.out.println("Bye. Hope to see you again soon!");
+        showMessage("Bye. Hope to see you again soon!");
         showLine();
     }
 }
