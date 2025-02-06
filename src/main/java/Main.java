@@ -12,7 +12,7 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
 
-    private Fiona fiona = new Fiona();
+    private Fiona fiona = new Fiona("./data/fiona.txt");
 
     @Override
     public void start(Stage stage) {

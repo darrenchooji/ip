@@ -11,6 +11,7 @@ import fiona.task.Deadline;
 import fiona.task.Event;
 import fiona.task.Task;
 import fiona.task.Todo;
+import javafx.application.Platform;
 
 /**
  * The {@code Fiona} class represents a chatbot that helps users manage tasks.
@@ -54,26 +55,6 @@ public class Fiona {
         this.tasks = tasks;
         this.ui = ui;
     }
-
-    /**
-     * Constructs a {@code Fiona} chatbot with the {@code Storage}, {@code TaskList}, and {@code Ui} components.
-     */
-    public Fiona() {
-        ui = new Ui();
-        // You might want to specify a default file path or handle this differently
-        storage = new Storage("./data/fiona.txt");
-        try {
-            tasks = new TaskList(storage.load());
-            ui.showWelcome();
-            listTasks();
-        } catch (IOException e) {
-            ui.showLoadingError();
-            tasks = new TaskList();
-        }
-        ui.showLine();
-    }
-
-
     /**
      * Runs the chatbot. It continuously processes user commands until the "bye" command is given.
      */
@@ -186,7 +167,7 @@ public class Fiona {
      * @throws IOException    If there is an error saving to the specified file.
      */
     private void addDeadline(String args) throws FionaException, IOException {
-        if (args.isEmpty() || !args.contains("/by")) {
+        if (!args.contains("/by")) {
             throw new FionaException("The description of a deadline must include a '/by' clause.");
         }
         String[] parts = args.split("/by", 2);
@@ -211,7 +192,7 @@ public class Fiona {
      * @throws IOException    If there is an error saving to the specified file.
      */
     private void addEvent(String args) throws FionaException, IOException {
-        if (args.isEmpty() || !args.contains("/from") || !args.contains("/to")) {
+        if (!args.contains("/from") || !args.contains("/to")) {
             throw new FionaException("The description of an event must include '/from' and '/to' clauses.");
         }
         String[] fromSplit = args.split("/from", 2);
@@ -411,12 +392,23 @@ public class Fiona {
 
     public String getResponse(String input) {
         try {
-            processCommand(input);
+            // Parse the command first
+            Command command = Parser.parse(input);
+            if (command.getAction() == Action.BYE) {
+                ui.showBye();
+                String farewell = ui.getMessage();
+                // Exit the JavaFX application
+                Platform.exit();
+                return farewell;
+            } else {
+                handleCommand(command);
+            }
         } catch (FionaException | IOException e) {
             ui.showMessage(e.getMessage());
         }
         return ui.getMessage();
     }
+
 
     public String getWelcomeMessage() {
         return ui.getMessage();
