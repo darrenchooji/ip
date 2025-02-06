@@ -386,7 +386,7 @@ public class Fiona {
      *
      * @param args Command-line arguments.
      */
-    public static void main(String[] args) {
+    public static void main(String... args) {
         new Fiona("./data/fiona.txt").run();
     }
 
