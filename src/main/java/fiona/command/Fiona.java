@@ -287,16 +287,10 @@ public class Fiona {
         if (args.isEmpty()) {
             throw new FionaException("You must specify a date-time in yyyy-MM-dd HHmm format to find tasks.");
         }
-
-        // Parse the date separately
         LocalDateTime targetDateTime = parseDate(args);
-
-        // Filter tasks to find matches
         List<Task> matchingTasks = tasks.getTasks().stream()
                 .filter(task -> isTaskMatchingDate(task, targetDateTime))
                 .toList();
-
-        // Output result
         if (matchingTasks.isEmpty()) {
             ui.showMessage("No tasks found at "
                     + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm"))
