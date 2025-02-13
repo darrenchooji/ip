@@ -41,8 +41,7 @@ application {
 }
 
 shadowJar {
-    archiveBaseName = "duke"
-    archiveClassifier = null
+    archiveFileName = 'fiona.jar'
 }
 
 checkstyle {
