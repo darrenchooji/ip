@@ -86,57 +86,56 @@ public class Fiona {
      * Handles the given user command.
      *
      * @param command The command to process.
-     * @throws FionaException If any of the command format is invalid.
+     * @throws FionaException If any command format is invalid.
      * @throws IOException    If there is an error accessing the specified file.
      */
     private void handleCommand(Command command) throws FionaException, IOException {
-        Action action = command.getAction();
-        String args = command.getArgs();
-
         try {
-            switch (action) {
-            case TODO:
-                addTodo(args);
-                break;
-
-            case DEADLINE:
-                addDeadline(args);
-                break;
-
-            case EVENT:
-                addEvent(args);
-                break;
-
-            case LIST:
-                listTasks();
-                break;
-
-            case MARK:
-                markTask(args);
-                break;
-
-            case UNMARK:
-                unmarkTask(args);
-                break;
-
-            case DELETE:
-                deleteTask(args);
-                break;
-
-            case FIND:
-                findTasks(args);
-                break;
-
-            case FIND_KEYWORD:
-                findTasksByKeyword(args);
-                break;
-
-            case UNKNOWN:
-            default:
-                throw new FionaException("I'm sorry, but I don't know what that means :-(");
-            }
+            runAction(command.getAction(), command.getArgs());
         } catch (NumberFormatException e) {
             throw new FionaException("The task number you specified must be a valid integer!");
+        }
+    }
+
+    /**
+     * Executes the appropriate action based on the given Action and args.
+     *
+     * @param action The Action to perform (e.g., TODO, LIST, etc.).
+     * @param args   The arguments passed to that action.
+     * @throws FionaException If the command format is invalid.
+     * @throws IOException    If there is an error accessing the file.
+     */
+    private void runAction(Action action, String args) throws FionaException, IOException {
+        switch (action) {
+        case TODO:
+            addTodo(args);
+            break;
+        case DEADLINE:
+            addDeadline(args);
+            break;
+        case EVENT:
+            addEvent(args);
+            break;
+        case LIST:
+            listTasks();
+            break;
+        case MARK:
+            markTask(args);
+            break;
+        case UNMARK:
+            unmarkTask(args);
+            break;
+        case DELETE:
+            deleteTask(args);
+            break;
+        case FIND:
+            findTasks(args);
+            break;
+        case FIND_KEYWORD:
+            findTasksByKeyword(args);
+            break;
+        default:
+            throw new FionaException("I'm sorry, but I don't know what that means :-(");
         }
     }
 
@@ -284,51 +283,68 @@ public class Fiona {
         ui.showMessage("Now you have " + tasks.size() + " task(s) in the list.");
     }
 
-    /**
-     * Finds tasks based on a specific date and time.
-     *
-     * @param args The date-time string in the format "yyyy-MM-dd HHmm".
-     * @throws FionaException If the format is incorrect or no tasks are found.
-     */
     private void findTasks(String args) throws FionaException {
         if (args.isEmpty()) {
             throw new FionaException("You must specify a date-time in yyyy-MM-dd HHmm format to find tasks.");
         }
 
-        String dateTimeStr = args;
-        LocalDateTime targetDateTime;
-        try {
-            targetDateTime = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
-        } catch (DateTimeParseException e) {
-            throw new FionaException("Invalid date-time format. Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");
-        }
+        // Parse the date separately
+        LocalDateTime targetDateTime = parseDate(args);
 
-        List<Task> matchingTasks = new ArrayList<>();
+        // Filter tasks to find matches
+        List<Task> matchingTasks = tasks.getTasks().stream()
+                .filter(task -> isTaskMatchingDate(task, targetDateTime))
+                .toList();
 
-        for (Task task : tasks.getTasks()) {
-            if (task instanceof Deadline) {
-                Deadline deadlineTask = (Deadline) task;
-                if (deadlineTask.getDeadline().equals(targetDateTime)) {
-                    matchingTasks.add(deadlineTask);
-                }
-            } else if (task instanceof Event) {
-                Event eventTask = (Event) task;
-                if (!eventTask.getFrom().isAfter(targetDateTime) && !eventTask.getTo().isBefore(targetDateTime)) {
-                    matchingTasks.add(eventTask);
-                }
-            }
-        }
-
+        // Output result
         if (matchingTasks.isEmpty()) {
-            ui.showMessage("No tasks found at " + targetDateTime.format(DateTimeFormatter
-                    .ofPattern("MMM dd yyyy HH:mm")) + ".");
+            ui.showMessage("No tasks found at "
+                    + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm"))
+                    + ".");
         } else {
-            ui.showMessage("Here are the tasks at " + targetDateTime.format(DateTimeFormatter
-                    .ofPattern("MMM dd yyyy HH:mm")) + ":");
-            for (int i = 0; i < matchingTasks.size(); ++i) {
+            ui.showMessage("Here are the tasks at "
+                    + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm"))
+                    + ":");
+            for (int i = 0; i < matchingTasks.size(); i++) {
                 ui.showMessage((i + 1) + ". " + matchingTasks.get(i));
             }
         }
+    }
+
+    /**
+     * Parses a date-time string in "yyyy-MM-dd HHmm" format.
+     *
+     * @param dateTimeStr The date-time string to parse.
+     * @return The corresponding LocalDateTime object.
+     * @throws FionaException If the string is not in the correct format.
+     */
+    private LocalDateTime parseDate(String dateTimeStr) throws FionaException {
+        try {
+            return LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+        } catch (DateTimeParseException e) {
+            throw new FionaException("Invalid date-time format. Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");
+        }
+    }
+
+    /**
+     * Determines if a given task matches the specified date-time.
+     * For a Deadline, we check equality.
+     * For an Event, we check whether the date-time falls within the event's range.
+     *
+     * @param task           The task to check.
+     * @param targetDateTime The date-time we want to match.
+     * @return True if the task matches, false otherwise.
+     */
+    private boolean isTaskMatchingDate(Task task, LocalDateTime targetDateTime) {
+        if (task instanceof Deadline) {
+            Deadline deadlineTask = (Deadline) task;
+            return deadlineTask.getDeadline().equals(targetDateTime);
+        } else if (task instanceof Event) {
+            Event eventTask = (Event) task;
+            return !eventTask.getFrom().isAfter(targetDateTime)
+                    && !eventTask.getTo().isBefore(targetDateTime);
+        }
+        return false;
     }
 
     /**
