@@ -222,9 +222,10 @@ public class Fiona {
         } else {
             ui.showMessage("Here are your existing tasks:");
             List<Task> taskList = tasks.getTasks();
-            for (int i = 0; i < taskList.size(); ++i) {
-                ui.showMessage((i + 1) + ". " + taskList.get(i));
-            }
+            java.util.concurrent.atomic.AtomicInteger counter = new java.util.concurrent.atomic.AtomicInteger(1);
+            taskList.forEach(task -> {
+                ui.showMessage(counter.getAndIncrement() + ". " + task);
+            });
         }
     }
 
@@ -352,14 +353,9 @@ public class Fiona {
             throw new FionaException("You must specify a keyword to search for.");
         }
 
-        List<Task> matchingTasks = new ArrayList<>();
-
-        for (Task task : tasks.getTasks()) {
-            if (task.getName().toLowerCase().contains(keyword.toLowerCase())) {
-                matchingTasks.add(task);
-            }
-        }
-
+        List<Task> matchingTasks = tasks.getTasks().stream()
+                .filter(t -> t.getName().toLowerCase().contains(keyword.toLowerCase()))
+                .toList();
         if (matchingTasks.isEmpty()) {
             ui.showMessage("No tasks found containing the keyword: " + keyword);
         } else {
@@ -380,15 +376,6 @@ public class Fiona {
     public void processCommand(String fullCommand) throws FionaException, IOException {
         Command command = Parser.parse(fullCommand);
         handleCommand(command);
-    }
-
-    /**
-     * Retrieves the current task list managed by Fiona.
-     *
-     * @return The {@code TaskList} object containing the user's tasks.
-     */
-    public TaskList getTaskList() {
-        return tasks;
     }
 
     /**
