@@ -23,8 +23,11 @@ public class Parser {
             args = inputs[1].trim();
         }
 
-        if (action == Action.FIND && !args.matches("\\d{4}-\\d{2}-\\d{2} \\d{4}")) {
-            action = Action.FIND_KEYWORD;
+        if (action == Action.FIND) {
+            if (args.matches("\\d{4}-\\d{2}-\\d{2}") || args.matches("\\d{4}-\\d{2}-\\d{2}\\s+\\d{4}")) {
+            } else {
+                action = Action.FIND_KEYWORD;
+            }
         }
 
         return new Command(action, args);

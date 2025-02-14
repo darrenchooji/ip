@@ -1,6 +1,7 @@
 package fiona.command;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -285,24 +286,70 @@ public class Fiona {
 
     private void findTasks(String args) throws FionaException {
         if (args.isEmpty()) {
-            throw new FionaException("You must specify a date-time in yyyy-MM-dd HHmm format to find tasks.");
+            throw new FionaException("You must specify a date or date-time in the correct format to find tasks.");
         }
-        LocalDateTime targetDateTime = parseDate(args);
-        List<Task> matchingTasks = tasks.getTasks().stream()
-                .filter(task -> isTaskMatchingDate(task, targetDateTime))
-                .toList();
-        if (matchingTasks.isEmpty()) {
-            ui.showMessage("No tasks found at "
-                    + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm"))
-                    + ".");
+        LocalDateTime start;
+        LocalDateTime end;
+        if (isDateOnly(args)) {
+            LocalDate date = parseLocalDate(args);
+            start = date.atStartOfDay();
+            end = date.atTime(23, 59);
+        } else if (isDateTime(args)) {
+            LocalDateTime dateTime = parseLocalDateTime(args);
+            start = dateTime;
+            end = dateTime;
         } else {
-            ui.showMessage("Here are the tasks at "
-                    + targetDateTime.format(DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm"))
-                    + ":");
+            throw new FionaException("Invalid date/time format. Please use yyyy-MM-dd or yyyy-MM-dd HHmm.");
+        }
+
+        List<Task> matchingTasks = tasks.getTasks().stream()
+                .filter(task -> isTaskInRange(task, start, end))
+                .toList();
+
+        if (matchingTasks.isEmpty()) {
+            ui.showMessage("No tasks found matching the date/date-time you provided");
+        } else {
+            ui.showMessage("Here are the matching tasks:");
             for (int i = 0; i < matchingTasks.size(); i++) {
                 ui.showMessage((i + 1) + ". " + matchingTasks.get(i));
             }
         }
+    }
+
+    private boolean isDateOnly(String input) {
+        return input.matches("\\d{4}-\\d{2}-\\d{2}");
+    }
+
+    private boolean isDateTime(String input) {
+        return input.matches("\\d{4}-\\d{2}-\\d{2}\\s+\\d{4}");
+    }
+
+    private LocalDate parseLocalDate(String dateStr) throws FionaException {
+        try {
+            return LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } catch (DateTimeParseException e) {
+            throw new FionaException("Invalid date format. Please use yyyy-MM-dd (e.g., 2025-02-13).");
+        }
+    }
+
+    private LocalDateTime parseLocalDateTime(String dateTimeStr) throws FionaException {
+        try {
+            return LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
+        } catch (DateTimeParseException e) {
+            throw new FionaException("Invalid date-time format. Please use yyyy-MM-dd HHmm (e.g., 2025-02-13 1800).");
+        }
+    }
+
+    private boolean isTaskInRange(Task task, LocalDateTime start, LocalDateTime end) {
+        if (task instanceof Deadline) {
+            Deadline deadlineTask = (Deadline) task;
+            LocalDateTime dl = deadlineTask.getDeadline();
+            return !dl.isBefore(start) && !dl.isAfter(end);
+        } else if (task instanceof Event) {
+            Event eventTask = (Event) task;
+            return !eventTask.getTo().isBefore(start) && !eventTask.getFrom().isAfter(end);
+        }
+        return false;
     }
 
     /**
