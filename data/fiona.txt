@@ -1,4 +1,4 @@
 T | 0 | CS2103T iP
-T | 1 | CS2103T tP - finalize target audience
 T | 0 | CS2103T iP
-E | 1 | CSA Interview | 2025-02-20 1400 | 2025-02-20 1500
+E | 0 | CSA Interview | 2025-02-20 1400 | 2025-02-20 1500
+D | 0 | CS3230 Assignment 3 | 2025-02-16 2359
