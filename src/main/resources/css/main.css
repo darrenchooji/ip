@@ -4,22 +4,22 @@
 }
 
 .text-field {
-    -fx-background-color: #d9ffe2;
-    -fx-font: 20px "Arial";
+    -fx-background-color: #e0e0e0;
+    -fx-font: 24px "Montserrat";
 }
 
 .button {
-    -fx-background-color: mediumspringgreen;
-    -fx-font: italic bold 16px "Arial";
+    -fx-background-color: #99ffcc;
+    -fx-font: italic bold 16px "Montserrat";
 }
 
 .button:hover {
-    -fx-background-color:cyan;
+    -fx-background-color: #00cc66;
     -fx-font-size: 18px;
 }
 
 .button:pressed {
-    -fx-background-color:orange;
+    -fx-background-color: #CCFFE5;
     -fx-font-size: 20px;
 }
 
@@ -34,7 +34,7 @@
 }
 
 .scroll-bar .thumb {
-    -fx-background-color: #ff9cb4;
+    -fx-background-color: #006666;
     -fx-background-radius: 1em;
 }
 

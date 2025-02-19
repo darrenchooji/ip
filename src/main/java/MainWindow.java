@@ -1,9 +1,7 @@
 import fiona.command.Fiona;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 /**
@@ -16,20 +14,15 @@ public class MainWindow extends AnchorPane {
     private VBox dialogContainer;
     @FXML
     private TextField userInput;
-    @FXML
-    private Button sendButton;
 
     private Fiona fiona;
-
-    private Image userImage = new Image(this.getClass().getResourceAsStream("/images/DaUser.png"));
-    private Image fionaImage = new Image(this.getClass().getResourceAsStream("/images/DaDuke.png"));
 
     /** Injects the Duke instance and displays welcome message. */
     public void setDuke(Fiona f) {
         fiona = f;
         String welcomeMessage = fiona.getWelcomeMessage();
         dialogContainer.getChildren().addAll(
-                DialogBox.getDukeDialog(welcomeMessage, fionaImage)
+                DialogBox.getDukeDialog(welcomeMessage)
         );
     }
 
@@ -50,8 +43,8 @@ public class MainWindow extends AnchorPane {
         String input = userInput.getText();
         String response = fiona.getResponse(input);
         dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input, userImage),
-                DialogBox.getDukeDialog(response, fionaImage)
+                DialogBox.getUserDialog(input),
+                DialogBox.getDukeDialog(response)
         );
         userInput.clear();
     }
