@@ -1,26 +1,73 @@
-# Duke project template
+# User Guide for Fiona
+## Quick Start
+1. Ensure you have Java 17 or above installed in your Computer.
+2. Mac users: Ensure you have the precise JDK version prescribed [here](https://se-education.org/guides/tutorials/javaInstallationMac.html).
+3. Download the latest .jar file from [here](https://github.com/darrenchooji/ip/releases).
 
-This is a project template for a greenfield Java project. It's named after the Java mascot _Duke_. Given below are instructions on how to use it.
+## Adding a `Todo`
+Adds a todo task to the task list. 
 
-## Setting up in Intellij
+Format: `todo NAME`
 
-Prerequisites: JDK 17, update Intellij to the most recent version.
+Examples:
+- `todo Plan Valentine's day`
+- `todo Apply for internships`
 
-1. Open Intellij (if you are not in the welcome screen, click `File` > `Close Project` to close the existing project first)
-1. Open the project into Intellij as follows:
-   1. Click `Open`.
-   1. Select the project directory, and click `OK`.
-   1. If there are any further prompts, accept the defaults.
-1. Configure the project to use **JDK 17** (not other versions) as explained in [here](https://www.jetbrains.com/help/idea/sdk.html#set-up-jdk).<br>
-   In the same dialog, set the **Project language level** field to the `SDK default` option.
-1. After that, locate the `src/main/java/Duke.java` file, right-click it, and choose `Run Duke.main()` (if the code editor is showing compile errors, try restarting the IDE). If the setup is correct, you should see something like the below as the output:
-   ```
-   Hello from
-    ____        _        
-   |  _ \ _   _| | _____ 
-   | | | | | | | |/ / _ \
-   | |_| | |_| |   <  __/
-   |____/ \__,_|_|\_\___|
-   ```
+## Adding a `Deadline`
+Adds a deadline task to the task list.
 
-**Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+Format: `deadline NAME /by yyyy-MM-dd HHmm`
+
+Examples: 
+- `deadline CS2103T iP /by 2025-02-21 2359`
+- `deadline CS3230 Assignment 4 /by 2025-02-23 2359`
+
+## Adding a `Event`
+Adds an event to the task list.
+
+Format: `event NAME /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm`
+
+Examples:
+- `event Internship interview /from 2025-02-20 1400 /to 2025-02-20 1430`
+
+## Listing every task: `list`
+Shows a list of all your current tasks.
+
+Format: `list`
+
+## Mark a task as done: `mark`
+Mark the specified task as done.
+
+Format: `mark TASK_INDEX`
+
+Example: 
+- `mark 1`
+
+## Delete a task: `delete`
+Delete a specified task.
+
+Format: `delete TASK_INDEX`
+
+Example:
+- `delete 1`
+
+## Unmark a task as not done yet: `unmark`
+Unmark the specified task as not done yet.
+
+Format: `unmark TASK_INDEX`
+
+Example:
+- `unmark 1`
+
+## Search for task: `find`
+Search for tasks via keywords, date, or datetime.
+
+Format:
+- `find KEYWORD`
+- `find yyyy-MM-dd`
+- `find yyyy-MM-dd HHmm`
+
+Examples:
+- `find CS`
+- `find 2025-02-19`
+- `find 2025-02-19 1830`

@@ -188,7 +188,7 @@ public class Fiona {
     /**
      * Adds a new {@code Event} task.
      *
-     * @param args The task description, from, and to, formatted as "description \from from \to to".
+     * @param args The task description, from, and to, formatted as "description /from from /to to".
      * @throws FionaException If the input format is invalid.
      * @throws IOException    If there is an error saving to the specified file.
      */
