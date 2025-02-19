@@ -47,7 +47,7 @@ public class FionaTest {
 
     @Test
     void addDeadline_validArgs_success() throws IOException, FionaException {
-        String input = "deadline submit assignment /by 2025-01-31 2359";
+        String input = "deadline submit assignment /by 2030-01-31 2359";
 
         fiona.processCommand(input);
         Assertions.assertEquals(1, testTaskList.size());

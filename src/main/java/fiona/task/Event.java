@@ -34,7 +34,7 @@ public class Event extends Task {
             this.from = LocalDateTime.parse(from, STORAGE_FORMAT);
             this.to = LocalDateTime.parse(to, STORAGE_FORMAT);
             if (this.from.isAfter(this.to)) {
-                throw new FionaException("Start date cannot be after end date time.");
+                throw new FionaException("Start date time cannot be after end date time.");
             }
             if (this.to.isBefore(LocalDateTime.now())) {
                 throw new FionaException("End date cannot be before today's date.");
