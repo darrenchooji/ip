@@ -30,6 +30,9 @@ public class Deadline extends Task {
         super(name);
         try {
             this.deadline = LocalDateTime.parse(deadline, STORAGE_FORMAT);
+            if (this.deadline.isBefore(LocalDateTime.now())) {
+                throw new FionaException("The deadline cannot be before the today's date.");
+            }
         } catch (DateTimeParseException e) {
             throw new FionaException("Invalid date-time format for deadline. "
                     + "Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");

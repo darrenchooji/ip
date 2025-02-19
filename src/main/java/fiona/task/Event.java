@@ -33,6 +33,9 @@ public class Event extends Task {
         try {
             this.from = LocalDateTime.parse(from, STORAGE_FORMAT);
             this.to = LocalDateTime.parse(to, STORAGE_FORMAT);
+            if (this.from.isAfter(this.to)) {
+                throw new FionaException("Start date cannot be after end date time.");
+            }
         } catch (DateTimeParseException e) {
             throw new FionaException("Invalid date-time format for event. "
                     + "Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");

@@ -1,5 +1,8 @@
 package fiona.command;
 
+import fiona.task.Deadline;
+import fiona.task.Event;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,6 +72,21 @@ public class TaskList {
         task.setUndone();
         return task;
     }
+
+    /**
+     * Delete past Deadlines or Events.
+     */
+    public void purgeOverdueTasks() {
+        tasks.removeIf(task -> {
+            if (task instanceof Deadline) {
+                return ((Deadline) task).getDeadline().isBefore(LocalDateTime.now());
+            } else if (task instanceof Event) {
+                return ((Event) task).getTo().isBefore(LocalDateTime.now());
+            }
+            return false;
+        });
+    }
+
 
     /**
      * Returns the list of tasks.

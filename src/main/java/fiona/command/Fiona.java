@@ -33,6 +33,8 @@ public class Fiona {
         storage = new Storage(filePath);
         try {
             tasks = new TaskList(storage.load());
+            tasks.purgeOverdueTasks();
+            storage.save(tasks.getTasks());
             ui.showWelcome();
             listTasks();
         } catch (IOException e) {
