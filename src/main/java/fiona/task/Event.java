@@ -36,6 +36,9 @@ public class Event extends Task {
             if (this.from.isAfter(this.to)) {
                 throw new FionaException("Start date cannot be after end date time.");
             }
+            if (this.to.isBefore(LocalDateTime.now())) {
+                throw new FionaException("End date cannot be before today's date.");
+            }
         } catch (DateTimeParseException e) {
             throw new FionaException("Invalid date-time format for event. "
                     + "Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");
