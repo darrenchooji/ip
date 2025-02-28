@@ -9,8 +9,8 @@ public class DeadlineTest {
     @Test
     void constructor_validFormat_success() {
         Assertions.assertDoesNotThrow(() -> {
-            Deadline deadline = new Deadline("Finish CS2103T iP", "2030-01-31 1600");
-            Assertions.assertEquals("[D][ ] Finish CS2103T iP (by: Jan 31 2030 16:00)",
+            Deadline deadline = new Deadline("Finish CS2103T iP", "2035-01-31 1600");
+            Assertions.assertEquals("[D][ ] Finish CS2103T iP (by: Jan 31 2035 16:00)",
                     deadline.toString(),
                     "Expected a correct format for toString() method"
             );
@@ -29,8 +29,8 @@ public class DeadlineTest {
 
     @Test
     void getDeadline_validFormat_correctParsing() throws FionaException {
-        Deadline deadline = new Deadline("Finish CS2103T iP", "2030-01-31 1600");
-        Assertions.assertEquals(2030, deadline.getDeadline().getYear());
+        Deadline deadline = new Deadline("Finish CS2103T iP", "2035-01-31 1600");
+        Assertions.assertEquals(2035, deadline.getDeadline().getYear());
         Assertions.assertEquals(1, deadline.getDeadline().getMonthValue());
         Assertions.assertEquals(31, deadline.getDeadline().getDayOfMonth());
         Assertions.assertEquals(16, deadline.getDeadline().getHour());
