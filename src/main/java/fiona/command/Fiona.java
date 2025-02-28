@@ -19,9 +19,9 @@ import javafx.application.Platform;
  * Tasks can be of type {@code Todo}, {@code Deadline}, or {@code Event}.
  */
 public class Fiona {
-    private Storage storage;
+    private final Storage storage;
     private TaskList tasks;
-    private Ui ui;
+    private final Ui ui;
 
     /**
      * Constructs a {@code Fiona} chatbot that loads tasks from the specified file.
@@ -68,7 +68,6 @@ public class Fiona {
                 Action action = command.getAction();
 
                 if (action == Action.BYE) {
-                    ui.showBye();
                     break;
                 }
 
@@ -197,6 +196,15 @@ public class Fiona {
             throw new FionaException("The description of an event must include '/from' and '/to' clauses.");
         }
         String[] fromSplit = args.split("/from", 2);
+        Task event = getTask(fromSplit);
+        tasks.add(event);
+        storage.save(tasks.getTasks());
+        ui.showMessage("Got it. I've added this task:");
+        ui.showMessage(event.toString());
+        ui.showMessage("Now you have " + tasks.size() + " task(s) in the list.");
+    }
+
+    private static Task getTask(String[] fromSplit) throws FionaException {
         if (fromSplit.length < 2 || fromSplit[0].trim().isEmpty() || fromSplit[1].trim().isEmpty()) {
             throw new FionaException("Invalid format for event. Use: event <description> /from <start> /to <end>");
         }
@@ -207,12 +215,7 @@ public class Fiona {
         }
         String from = toSplit[0].trim();
         String to = toSplit[1].trim();
-        Task event = new Event(description, from, to);
-        tasks.add(event);
-        storage.save(tasks.getTasks());
-        ui.showMessage("Got it. I've added this task:");
-        ui.showMessage(event.toString());
-        ui.showMessage("Now you have " + tasks.size() + " task(s) in the list.");
+        return new Event(description, from, to);
     }
 
     /**
@@ -225,9 +228,7 @@ public class Fiona {
             ui.showMessage("Here are your existing tasks:");
             List<Task> taskList = tasks.getTasks();
             java.util.concurrent.atomic.AtomicInteger counter = new java.util.concurrent.atomic.AtomicInteger(1);
-            taskList.forEach(task -> {
-                ui.showMessage(counter.getAndIncrement() + ". " + task);
-            });
+            taskList.forEach(task -> ui.showMessage(counter.getAndIncrement() + ". " + task));
         }
     }
 
@@ -343,49 +344,11 @@ public class Fiona {
     }
 
     private boolean isTaskInRange(Task task, LocalDateTime start, LocalDateTime end) {
-        if (task instanceof Deadline) {
-            Deadline deadlineTask = (Deadline) task;
+        if (task instanceof Deadline deadlineTask) {
             LocalDateTime dl = deadlineTask.getDeadline();
             return !dl.isBefore(start) && !dl.isAfter(end);
-        } else if (task instanceof Event) {
-            Event eventTask = (Event) task;
+        } else if (task instanceof Event eventTask) {
             return !eventTask.getTo().isBefore(start) && !eventTask.getFrom().isAfter(end);
-        }
-        return false;
-    }
-
-    /**
-     * Parses a date-time string in "yyyy-MM-dd HHmm" format.
-     *
-     * @param dateTimeStr The date-time string to parse.
-     * @return The corresponding LocalDateTime object.
-     * @throws FionaException If the string is not in the correct format.
-     */
-    private LocalDateTime parseDate(String dateTimeStr) throws FionaException {
-        try {
-            return LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm"));
-        } catch (DateTimeParseException e) {
-            throw new FionaException("Invalid date-time format. Please use yyyy-MM-dd HHmm (e.g., 2019-12-02 1800).");
-        }
-    }
-
-    /**
-     * Determines if a given task matches the specified date-time.
-     * For a Deadline, we check equality.
-     * For an Event, we check whether the date-time falls within the event's range.
-     *
-     * @param task           The task to check.
-     * @param targetDateTime The date-time we want to match.
-     * @return True if the task matches, false otherwise.
-     */
-    private boolean isTaskMatchingDate(Task task, LocalDateTime targetDateTime) {
-        if (task instanceof Deadline) {
-            Deadline deadlineTask = (Deadline) task;
-            return deadlineTask.getDeadline().equals(targetDateTime);
-        } else if (task instanceof Event) {
-            Event eventTask = (Event) task;
-            return !eventTask.getFrom().isAfter(targetDateTime)
-                    && !eventTask.getTo().isBefore(targetDateTime);
         }
         return false;
     }
@@ -440,7 +403,6 @@ public class Fiona {
             // Parse the command first
             Command command = Parser.parse(input);
             if (command.getAction() == Action.BYE) {
-                ui.showBye();
                 String farewell = ui.getMessage();
                 // Exit the JavaFX application
                 Platform.exit();
