@@ -26,12 +26,12 @@ public class FionaTest {
         }
 
         @Override
-        public ArrayList<Task> load() throws IOException {
+        public ArrayList<Task> load() {
             return tasks;
         }
 
         @Override
-        public void save(List<Task> tasks) throws IOException {
+        public void save(List<Task> tasks) {
             this.tasks = new ArrayList<>(tasks);
         }
     }
@@ -47,13 +47,13 @@ public class FionaTest {
 
     @Test
     void addDeadline_validArgs_success() throws IOException, FionaException {
-        String input = "deadline submit assignment /by 2030-01-31 2359";
+        String input = "deadline submit assignment /by 2035-01-31 2359";
 
         fiona.processCommand(input);
         Assertions.assertEquals(1, testTaskList.size());
 
         Task addedTask = testTaskList.getTasks().get(0);
-        Assertions.assertTrue(addedTask instanceof Deadline, "The added task should be a Deadline.");
+        Assertions.assertInstanceOf(Deadline.class, addedTask, "The added task should be a Deadline.");
         Assertions.assertTrue(addedTask.toString().contains("submit assignment"));
     }
 
@@ -61,9 +61,7 @@ public class FionaTest {
     void addDeadline_missingByClause_throwsException() {
         String input = "deadline submit assignment";
 
-        FionaException ex = Assertions.assertThrows(FionaException.class, () -> {
-            fiona.processCommand(input);
-        });
+        FionaException ex = Assertions.assertThrows(FionaException.class, () -> fiona.processCommand(input));
 
         Assertions.assertTrue(ex.getMessage().contains("/by"),
                 "Error message should mention missing /by clause.");
@@ -72,11 +70,9 @@ public class FionaTest {
     @Test
     void addDeadline_invalidDateFormat_throwsException() {
         // Should be "yyyy-MM-dd HHmm"
-        String input = "deadline submit assignment /by 2025-01-31T2359";
+        String input = "deadline submit assignment /by 2035-01-31T2359";
 
-        FionaException ex = Assertions.assertThrows(FionaException.class, () -> {
-            fiona.processCommand(input);
-        });
+        FionaException ex = Assertions.assertThrows(FionaException.class, () -> fiona.processCommand(input));
 
         Assertions.assertTrue(ex.getMessage().contains("Invalid date-time format for deadline."),
                 "Expected invalid date-time format error message.");
