@@ -10,8 +10,8 @@ import java.io.InputStreamReader;
 public class Ui {
     private static final String LINE = "-------------------------------------------------------------";
 
-    private BufferedReader reader;
-    private StringBuilder messageLog;
+    private final BufferedReader reader;
+    private final StringBuilder messageLog;
 
     /**
      * Constructs a {@code Ui} object and initializes the input reader.
@@ -77,14 +77,5 @@ public class Ui {
         // Clear the log after retrieving the messages.
         messageLog.setLength(0);
         return output;
-    }
-
-    /**
-     * Displays the goodbye message when the chatbot exits.
-     */
-    public void showBye() {
-        showLine();
-        showMessage("Bye. Hope to see you again soon!");
-        showLine();
     }
 }
